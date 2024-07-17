@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharacterGPT Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+        }
+
+        .banner {
+            background-color: #00334d;
+            color: #f0f4f8;
+            padding: 25px 45px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner a {
+            color: #f0f4f8;
+            margin: 15px;
+            text-decoration: none;
+            font-weight: 100;
+        }
+
+        .sidebar {
+            background-color: #00334d77;
+            color: black;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 40px;
+        }
+
+        .sidebar button {
+            background: none;
+            border: none;
+            color: black;
+            text-align: left;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sidebar button img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .sidebar button:hover {
+            background-color: #f0f4f8;
+            border-radius: 10%;
+        }
+
+        .sidebar button.selected {
+            background-color: #00334d;
+            color: #f0f4f8;
+            border-radius: 10%;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            margin-left: 200px;
+            margin-top: 90px;
+            padding-top: 110px;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #00334d;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-bubble {
+            background-color: #e1f5fe;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 15px;
+            max-width: 75%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-bubble img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .chat-bubble.user {
+            background-color: #bbdefb;
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .chat-bubble.bot {
+            background-color: #e3f2fd;
+            align-self: flex-start;
+        }
+
+        .chat-bubble.user img {
+            display: none;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .chat-input button {
+            background-color: #00334d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+
+        .stop-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px 5px 20px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .stop-button img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .stop-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .play-audio-button {
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 100;
+        }
+
+        .footer {
+            background-color: #00334d;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="banner">
+        <div class="logo">CharacterGPT</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/chatbot">Chatbot</a>
+        </div>
+    </div>
+    <div class="sidebar">
+        <h4>Select an avatar:</h4>
+        <button id="voice-0UmLVoOMMM6fxQsAVmyY" onclick="selectVoice('0UmLVoOMMM6fxQsAVmyY')">
+            <img src="/static/images/andrew-1.png" alt="Andrew"> Andrew
+        </button>
+        <button id="voice-xq7t2qeOp7R2rw1noISp" onclick="selectVoice('xq7t2qeOp7R2rw1noISp')">
+            <img src="/static/images/brenna.png" alt="Brenna"> Brenna
+        </button>
+        <br>
+        <h4>Select a character:</h4>
+        <button id="voice-Gqe8GJJLg3haJkTwYj2L" onclick="selectVoice('Gqe8GJJLg3haJkTwYj2L')">
+            <img src="/static/images/santa.png" alt="Santa"> Santa
+        </button>
+        <button id="voice-aOcS60CY8CoaVaZfqqb5" onclick="selectVoice('aOcS60CY8CoaVaZfqqb5')">
+            <img src="/static/images/cowboy.png" alt="Cowboy"> Cowboy
+        </button>
+        <button id="voice-tVkOo4DLgZb89qB0x4qP" onclick="selectVoice('tVkOo4DLgZb89qB0x4qP')">
+            <img src="/static/images/pirate.png" alt="Pirate"> Pirate
+        </button>
+    </div>
+    <div class="main">
+        <div class="container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h1>CharacterGPT</h1>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Type a message..."
+                        onkeypress="handleKeyPress(event)" />
+                    <button onclick="sendMessage()">Send</button>
+                    <button class="stop-button" onclick="stopResponse()">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2024 CharacterGPT. All rights reserved.
+    </div>
+    <script>
+        let currentAudio = null;
+        let selectedVoice = '0UmLVoOMMM6fxQsAVmyY';
+
+        function appendMessage(message, sender, audioUrl) {
+            const messageContainer = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-bubble', sender);
+
+            if (sender === 'bot') {
+                const profilePic = document.createElement('img');
+                profilePic.src = getProfilePic(sender);
+                profilePic.alt = sender;
+                messageElement.appendChild(profilePic);
+            }
+
+            const textElement = document.createElement('div');
+            textElement.textContent = message;
+            messageElement.appendChild(textElement);
+
+            if (audioUrl) {
+                const playAudioButton = document.createElement('img');
+                playAudioButton.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Speaker_Icon.svg/1000px-Speaker_Icon.svg.png?20190828181118';  // URL of the audio icon
+                playAudioButton.classList.add('play-audio-button');
+                playAudioButton.onclick = () => {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio = null;
+                    }
+                    currentAudio = new Audio(audioUrl + '?t=' + new Date().getTime());
+                    currentAudio.play();
+                };
+                messageElement.appendChild(playAudioButton);
+            }
+
+            messageContainer.appendChild(messageElement);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        function getProfilePic(sender) {
+            switch (selectedVoice) {
+                case '0UmLVoOMMM6fxQsAVmyY':
+                    return 'static/images/andrew-1.png';
+                case 'xq7t2qeOp7R2rw1noISp':
+                    return 'static/images/brenna.png';
+                case 'Gqe8GJJLg3haJkTwYj2L':
+                    return 'static/images/santa.png';
+                case 'aOcS60CY8CoaVaZfqqb5':
+                    return 'static/images/cowboy.png';
+                case 'tVkOo4DLgZb89qB0x4qP':
+                    return 'static/images/pirate.png';
+                default:
+                    return 'static/default.png';
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+
+            if (message === '') return;
+
+            appendMessage(message, 'user');
+            userInput.value = '';
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_input: message, voice_id: selectedVoice }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.response) {
+                        appendMessage(data.response, 'bot', data.audio_url);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function selectVoice(voiceId) {
+            selectedVoice = voiceId;
+            document.querySelectorAll('.sidebar button').forEach(button => {
+                button.classList.remove('selected');
+            });
+            document.getElementById('voice-' + voiceId).classList.add('selected');
+        }
+
+        function stopResponse() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            const messageContainer = document.getElementById('chat-messages');
+            messageContainer.innerHTML = '';  // Clear all messages
+        }
+    </script>
+</body>
+
+</html>
