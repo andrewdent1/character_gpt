@@ -238,6 +238,12 @@
         <div>
             <a href="/">Home</a>
             <a href="/chatbot">Chatbot</a>
+            {% if current_user.is_authenticated %}
+            <a href="/logout">Logout</a>
+            {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Sign Up</a>
+            {% endif %}
         </div>
     </div>
     <div class="sidebar">

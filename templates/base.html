@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CharacterGPT{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+        }
+
+        .banner {
+            background-color: #00334d;
+            color: #f0f4f8;
+            padding: 25px 45px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner a {
+            color: #f0f4f8;
+            margin: 15px;
+            text-decoration: none;
+            font-weight: 100;
+        }
+
+        .sidebar {
+            background-color: #00334d77;
+            color: black;
+            padding: 20px;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-top: 40px;
+        }
+
+        .sidebar a {
+            color: black;
+            text-decoration: none;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            margin-left: 200px;
+            margin-top: 90px;
+            padding-top: 110px;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #00334d;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-bubble {
+            background-color: #e1f5fe;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 15px;
+            max-width: 75%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-bubble img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .chat-bubble.user {
+            background-color: #bbdefb;
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .chat-bubble.bot {
+            background-color: #e3f2fd;
+            align-self: flex-start;
+        }
+
+        .chat-bubble.user img {
+            display: none;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .chat-input button {
+            background-color: #00334d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+
+        .stop-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px 5px 20px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .stop-button img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .stop-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .play-audio-button {
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 100;
+        }
+
+        .footer {
+            background-color: #00334d;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .dropdown {
+            display: inline-block;
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropbtn {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="banner">
+        <div class="logo">CharacterGPT</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/chatbot">Chatbot</a>
+            {% if current_user.is_authenticated %}
+            <a href="/logout">Logout</a>
+            {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Sign Up</a>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="dropdown">
+            <button class="dropbtn">Choose</button>
+            <div class="dropdown-content">
+                <a href="#" onclick="selectAvatar('andrew')">Andrew</a>
+                <a href="#" onclick="selectAvatar('brenna')">Brenna</a>
+                <a href="#" onclick="selectAvatar('santa')">Santa</a>
+                <a href="#" onclick="selectAvatar('cowboy')">Cowboy</a>
+                <a href="#" onclick="selectAvatar('pirate')">Pirate</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="sidebar">
+        {% block sidebar %}{% endblock %}
+    </div>
+    <div class="main">
+        {% block content %}{% endblock %}
+    </div>
+    <div class="footer">
+        &copy; 2024 CharacterGPT. All rights reserved.
+    </div>
+    <script>
+        function selectAvatar(avatar) {
+            // Function to handle avatar selection
+            console.log("Selected avatar:", avatar);
+            // You can add more logic here to handle the avatar selection
+        }
+    </script>
+</body>
+
+</html>

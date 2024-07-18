@@ -1,11 +1,22 @@
 import logging
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
 import requests
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['UPLOAD_FOLDER'] = 'uploads'
+
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message_category = 'info'
 
 # Ensure the upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -28,10 +39,19 @@ elevenlabs_url = "https://api.elevenlabs.io/v1/text-to-speech/"
 # Define the Whisper AI endpoint for transcription
 whisper_url = "https://api.openai.ai/v1/transcriptions"
 
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), nullable=False, unique=True)
+    email = db.Column(db.String(150), nullable=False, unique=True)
+    password = db.Column(db.String(150), nullable=False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 # Function to get chatbot response from OpenAI
 def get_chatbot_response(prompt, voice_id):
     try:
-        # Determine the prompt prefix based on the selected voice
         prompt_prefix = ""
         if voice_id == "0UmLVoOMMM6fxQsAVmyY":  # Andrew's voice ID
             prompt_prefix = "You are an American white boy. Speak as an American white boy would."
@@ -44,7 +64,6 @@ def get_chatbot_response(prompt, voice_id):
         if voice_id == "tVkOo4DLgZb89qB0x4qP":  # Pirate's voice ID
             prompt_prefix = "You are a Pirate. Speak as a Pirate would."
 
-        # Combine the prompt prefix with the user's prompt
         full_prompt = f"{prompt_prefix} {prompt}"
 
         openai_headers = {
@@ -133,16 +152,18 @@ def home():
     return render_template('home.html')
 
 @app.route('/chatbot')
+@login_required
 def chatbot():
     return render_template('chatbot.html')
 
 @app.route('/chat', methods=['POST'])
+@login_required
 def chat():
     try:
         data = request.get_json()
         user_input = data.get('user_input')
-        voice_id = data.get('voice_id', '0UmLVoOMMM6fxQsAVmyY')  # Default voice ID if not provided
-        chatbot_response = get_chatbot_response(user_input, voice_id)  # Pass voice_id to the function
+        voice_id = data.get('voice_id', '0UmLVoOMMM6fxQsAVmyY')
+        chatbot_response = get_chatbot_response(user_input, voice_id)
         audio_file = text_to_speech_elevenlabs(chatbot_response, voice_id)
         if audio_file:
             return jsonify({"response": chatbot_response, "audio_url": audio_file})
@@ -150,9 +171,10 @@ def chat():
             return jsonify({"error": "Sorry, I couldn't convert the response to audio."}), 500
     except Exception as e:
         logging.exception("Error in /chat endpoint")
-        return jsonify({"error": "Internal server error"}), 50
+        return jsonify({"error": "Internal server error"}), 500
     
 @app.route('/process_audio', methods=['POST'])
+@login_required
 def process_audio():
     try:
         if 'audio' not in request.files:
@@ -179,6 +201,46 @@ def process_audio():
     except Exception as e:
         logging.exception("Error in /process_audio endpoint")
         return jsonify({"error": "Internal server error"}), 500
-    
+
+# User Registration Route
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = User(username=username, email=email, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+# User Login Route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user, remember=True)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('home'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html')
+
+# User Logout Route
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
