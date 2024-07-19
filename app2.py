@@ -54,7 +54,7 @@ def get_chatbot_response(prompt, voice_id):
     try:
         prompt_prefix = ""
         if voice_id == "0UmLVoOMMM6fxQsAVmyY":  # Andrew's voice ID
-            prompt_prefix = "You are an American white boy. Speak as an American white boy would."
+            prompt_prefix = "You are a black man from the hood. Speak as a black man from the hood would."
         if voice_id == "xq7t2qeOp7R2rw1noISp":  # Brenna's voice ID
             prompt_prefix = "You are an American white girl. Speak as an American white girl would."
         if voice_id == "Gqe8GJJLg3haJkTwYj2L":  # Santa's voice ID
@@ -71,7 +71,7 @@ def get_chatbot_response(prompt, voice_id):
             "Authorization": f"Bearer {openai_api_key}"
         }
         openai_payload = {
-            "model": "gpt-4",
+            "model": "gpt-4o-mini",
             "messages": [{"role": "user", "content": full_prompt}],
             "max_tokens": 1000
         }
