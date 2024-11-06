@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - CharacterGPT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        .banner {
+            background-color: #00334d;
+            color: #f0f4f8;
+            padding: 25px 45px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid black;
+        }
+
+        .banner a:hover {
+            color: #4e95ff;
+        }
+
+        .banner a {
+            color: #f0f4f8;
+            margin: 15px;
+            text-decoration: none;
+            font-weight: 100;
+        }
+
+        .hero {
+            background: url(/static/images/CharacterGPT4.png) no-repeat center center;
+            background-size: cover;
+            color: #00334d;
+            background-color: #00334d27;
+            text-align: center;
+            padding: 10% 10%;
+            position: relative;
+            margin: 125px 50px 5% 50px;
+            border: 1px solid black;
+            border-radius: 3%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            top: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 5px hsla(0, 0%, 0%, 0.3);
+            padding-bottom: 30px;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffffb3;
+            /* White overlay with 80% opacity */
+            z-index: 1;
+            border-radius: 3%;
+        }
+
+        .button {
+            background-color: #00334d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1em;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .button:hover {
+            background-color: #4e95ff;
+        }
+
+        .section {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f0f4f8;
+            margin: 10px auto;
+            max-width: 1000px;
+            padding: 0px 20px 20px 20px;
+            align-items: center;
+        }
+
+        .content {
+            padding: 10px 80px 50px 80px;
+            display: flex;
+            align-items: center;
+            align-content: center;
+            align-self: center;
+            transform: translateY(10%);
+            opacity: 0;
+            transition: all 1s ease;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .scrolled {
+            opacity: 1;
+        }
+
+        .scrolled.our_features {
+            opacity: 1;
+        }
+
+        .scrolled.all_features {
+            opacity: 1;
+        }
+
+        .scrolled.last_button_container {
+            opacity: 1;
+        }
+
+        .text {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .text h1 {
+            padding-bottom: 20px;
+            padding-right: 50px;
+        }
+
+        .p {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .last_section {
+            border-radius: 5%;
+            background-color: white;
+            color: #00334d;
+            margin: 0px 50px 100px 50px;
+            padding-bottom: 20px;
+        }
+
+        .our_features {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 75px;
+            transform: translateY(10%);
+            opacity: 0;
+            transition: all 1s ease;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .all_features {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row;
+            align-content: center;
+            padding: 4% 5%;
+            margin-bottom: 75px;
+            padding-bottom: 75px;
+            text-align: center;
+            transform: translateY(10%);
+            opacity: 0;
+            transition: all 1s ease;
+        }
+
+        .all_features img {
+            padding-bottom: 20px;
+            width: 15vh;
+            height: 18vh;
+        }
+
+        .all_features h3 {
+            padding-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature1,
+        .feature2,
+        .feature3 {
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 40%;
+        }
+
+        .last_button_container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            margin-bottom: 125px;
+            transform: translateY(10%);
+            opacity: 0;
+            transition: all 1s ease;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer {
+            background-color: #00334d;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 100;
+        }
+
+        @media (max-width: 1000px) {
+            .text {
+                align-items: left;
+                flex-direction: column;
+                font-size: 1.2vh;
+                font-size: 1.6vw;
+            }
+
+            .p {
+                width: 100%;
+                text-align: left;
+                flex-direction: row;
+                justify-content: flex-start;
+            }
+
+            .hero {
+                font-size: 1.2vh;
+                font-size: 1.6vw;
+            }
+
+            .p_left {
+                margin-right: 20px;
+            }
+
+            .last_section {
+                font-size: 1.2vh;
+                font-size: 1.6vw;
+            }
+
+            @media (max-width: 500px) {
+                .last_section {
+                    display: grid;
+                }
+
+                .all_features {
+                    grid-template-columns: 400px;
+                    grid-template-rows: auto;
+                    align-content: center;
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="banner">
+        <div class="logo">CharacterGPT</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/chatbot">Chatbot</a>
+            {% if current_user.is_authenticated %}
+            <a href="/logout">Logout</a>
+            {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero">
+        <h1>Welcome to CharacterGPT</h1>
+        <p>Chat with AI how you want, with who you want.</p>
+        <button class="button" onclick="location.href='/chatbot'">Get Started</button>
+    </div>
+    <div class="content">
+        <div class="section">
+            <div class="text">
+                <h1>About CharacterGPT</h1>
+                <div class="p">
+                    <p class="p_left">CharacterGPT utilizes cutting-edge AI technology, allowing you to chat with a
+                        variety of
+                        characters.
+                        Whether you need assistance, want to have a casual conversation, or seek information,
+                        CharacterGPT
+                        is here to help you.</p>
+                    <br>
+                    <p>Simply choose your character, submit your prompt, and CharacterGPT will respond with text and
+                        audio.
+                        You can change the voice for each interaction, making your experience unique every time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="last_section">
+        <div class="our_features">
+            <h1>Our Features</h1>
+        </div>
+        <div class="all_features">
+            <div class="feature1">
+                <img src="/static/images/feature1.png">
+                <h3>Accurate Voice Manipulation</h3>
+                <p>Leveraging AI to create realistic and expressive human-like speech,
+                    our advanced machine learning algorithm synthesizes speech patterns and tonality.
+                    Try your voice today.
+                </p>
+            </div>
+            <div class="feature2">
+                <img src="/static/images/feature2.png">
+                <h3>Customizable Characters</h3>
+                <p>Revolutionizing user interaction enables conversations with custom characters.
+                    CharacterGPT prides itself as being the first LLM to offer a personalized and immersive
+                    experience.</p>
+            </div>
+            <div class="feature3">
+                <img src="/static/images/feature3.png">
+                <h3>Innovative AI Modeling</h3>
+                <p>Experience the power of the most cutting-edge GPT models, delivering highly accurate, coherent, and
+                    contextually relevant responses.</p>
+            </div>
+        </div>
+    </div>
+    <div class="last_button_container">
+        <button class="button" onclick="location.href='/chatbot'">Get Started</button>
+    </div>
+    <div class="footer">
+        &copy; 2024 CharacterGPT. All rights reserved.
+    </div>
+    <script>
+        document.addEventListener('scroll', () => {
+            const content = document.querySelector('.content');
+            const scrollPosition = window.scrollY;
+
+            if (scrollPosition > 50) {
+                content.classList.add('scrolled');
+            }
+        });
+        document.addEventListener('scroll', () => {
+            const all_features = document.querySelector('.all_features');
+            const scrollPosition = window.scrollY;
+
+            if (scrollPosition > 500) {
+                all_features.classList.add('scrolled');
+            }
+        });
+        document.addEventListener('scroll', () => {
+            const our_features = document.querySelector('.our_features');
+            const scrollPosition = window.scrollY;
+
+            if (scrollPosition > 450) {
+                our_features.classList.add('scrolled');
+            }
+        });
+        document.addEventListener('scroll', () => {
+            const last_button_container = document.querySelector('.last_button_container');
+            const scrollPosition = window.scrollY;
+
+            if (scrollPosition > 800) {
+                last_button_container.classList.add('scrolled');
+            }
+        });
+    </script>
+</body>
+
+</html>
