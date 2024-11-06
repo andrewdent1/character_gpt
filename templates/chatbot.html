@@ -236,14 +236,8 @@
     <div class="banner">
         <div class="logo">CharacterGPT</div>
         <div>
-            <a href="/">Home</a>
-            <a href="/chatbot">Chatbot</a>
-            {% if current_user.is_authenticated %}
-            <a href="/logout">Logout</a>
-            {% else %}
-            <a href="/login">Login</a>
-            <a href="/register">Sign Up</a>
-            {% endif %}
+            <a href="/templates/home.html">Home</a>
+            <a href="/templates/chatbot.html">Chatbot</a>
         </div>
     </div>
     <div class="sidebar">
